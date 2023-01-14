@@ -24,10 +24,18 @@ create or replace type boat
 create or replace type listRefBoats as table of REF boat
 /
 
+create or replace type category;
+/
+
 create or replace type category as object (
     id              number(8),
     name            varchar2(20),
-    cListRefBoats   listRefBoats
+    cListRefBoats   listRefBoats,
+    static function findById(identifiant IN Number) return category,
+    static function persist(c category) return boolean,
+    static function change return REF category,
+    static function remove return boolean,
+    map member function compare return varchar2
 );
 /
 
@@ -85,30 +93,61 @@ create or replace type reservation as object (
 /
 
 -- Création des tables
-
-create table categories of category (
-    constraint pk_categories_id primary key(id),
-    name constraint nnl_categories_name not null,
-);
+create table categories of category(
+    constraint pk_categories_id primary key (id),
+    name constraint nnl_categories_name not null
+)
+    nested table cListRefBoats store as table_listRefBoats;
 /
+
 create table boats of boat(
     constraint pk_boats_id primary key(id)
 );
 
 -- Création des index
 create unique index idx_categories_name on categories(name);
+/
 
 -- Création des scope pour chaque clé étranger
-alter table categories add (scope for (cListRefBoats) is boats)
+alter table categories add (scope for (cListRefBoats) is boats);
+/
 
 -- Contraintes supplémentaires
 
 -- Implémentation des méthodes de chaque type
-create or replace type body category as 
-    member function save is return boolean
-        begin
-            null;
-        end
+
+create or replace type body category as
+    static function findById(identifiant IN Number) return category is
+        c category := null;
+    begin
+        SELECT value(ca) INTO c FROM categories ca WHERE ca.id = identifiant;
+        return c;
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                raise;
+            WHEN OTHERS THEN
+                raise;
+    end;
+    static function persist(c IN category) return boolean is
+    begin
+        insert into categories values c;
+        return true;
+        EXCEPTION
+            WHEN OTHERS THEN
+                raise;
+    end;
+    static function change return REF category is
+    begin
+        null;
+    end;
+    static function remove return boolean is
+    begin
+        null;
+    end;
+    map member function compare return varchar2 is
+    begin
+        return self.NAME || self.ID;
+    end;
 end;
 /
 
