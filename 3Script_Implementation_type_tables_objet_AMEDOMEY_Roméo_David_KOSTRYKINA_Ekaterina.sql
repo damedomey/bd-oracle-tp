@@ -31,10 +31,13 @@ create or replace type category as object (
     id              number(8),
     name            varchar2(20),
     cListRefBoats   listRefBoats,
-    static function findById(identifiant IN Number) return category,
+    static function findById(identifiant Number) return category,
     static function persist(c category) return boolean,
-    static function change return REF category,
-    static function remove return boolean,
+    static function change(identifiant Number, newValue category) return boolean,
+    static function remove(identifiant Number) return boolean,
+    member procedure addBoat(b REF boat),
+    member function getBoats return listRefBoats,
+    member procedure removeBoat(b REF boat),
     map member function compare return varchar2
 );
 /
@@ -117,7 +120,7 @@ alter table categories add (scope for (cListRefBoats) is boats);
 -- Implémentation des méthodes de chaque type
 
 create or replace type body category as
-    static function findById(identifiant IN Number) return category is
+    static function findById(identifiant Number) return category is
         c category := null;
     begin
         SELECT value(ca) INTO c FROM categories ca WHERE ca.id = identifiant;
@@ -128,7 +131,7 @@ create or replace type body category as
             WHEN OTHERS THEN
                 raise;
     end;
-    static function persist(c IN category) return boolean is
+    static function persist(c category) return boolean is
     begin
         insert into categories values c;
         return true;
@@ -136,11 +139,31 @@ create or replace type body category as
             WHEN OTHERS THEN
                 raise;
     end;
-    static function change return REF category is
+    static function change(identifiant Number, newValue category) return boolean is
+    begin
+        UPDATE categories set name = newValue.name, CLISTREFBOATS = newValue.CLISTREFBOATS where id = identifiant;
+        return true;
+        EXCEPTION
+            WHEN OTHERS THEN
+                raise;
+    end;
+    static function remove(identifiant Number) return boolean is
+    begin
+        DELETE FROM categories ca where ca.id = identifiant;
+        return true;
+        EXCEPTION
+            WHEN OTHERS THEN
+                raise;
+    end;
+    member procedure addBoat(b REF boat) is
     begin
         null;
     end;
-    static function remove return boolean is
+    member function getBoats return listRefBoats is
+    begin
+        null;
+    end;
+    member procedure removeBoat(b REF boat) is
     begin
         null;
     end;
@@ -151,7 +174,28 @@ create or replace type body category as
 end;
 /
 
+-- Tests --
+-- Test crud catégorie
+delete from categories;
+declare
+    c CATEGORY := null;
+    c2 CATEGORY := null;
+    r boolean := null;
+begin
+    c:=Category(1, 'Navire', listRefBoats());
+    c2:=Category(2, 'Cat 2', listRefBoats());
 
+    r:=CATEGORY.persist(c);
+    r:=CATEGORY.persist(c2);
+
+    c2:=CATEGORY.findById(1);
+    c2.ID:=2;
+    c2.NAME:='update name';
+    r:=CATEGORY.change(c2.id, c2);
+    r:=Category.remove(c.id);
+--     dbms_output.put_line('dname'||c.NAME);
+end;
+select * from CATEGORIES;
 
 /* scope for
 
