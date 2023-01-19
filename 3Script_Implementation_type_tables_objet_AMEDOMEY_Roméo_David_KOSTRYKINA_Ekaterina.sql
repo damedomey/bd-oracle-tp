@@ -32,7 +32,7 @@ create or replace type category as object (
     name            varchar2(20),
     cListRefBoats   listRefBoats,
     static function findById(identifiant Number) return category,
-    static function persist(c category) return boolean,
+    static function persist(c category) return boolean, -- todo: return ref of the element
     static function change(identifiant Number, newValue category) return boolean,
     static function remove(identifiant Number) return boolean,
     member procedure addBoat(b REF boat),
@@ -56,7 +56,12 @@ create or replace type boat as object (
     max_seats       int,
     price           float,
     refCategory     REF category,
-    bListRefReservations listRefReservations
+    bListRefReservations listRefReservations,
+    static function findById(identifiant Number) return boat,
+    static function persist(b boat) return ref boat,
+    static function change(identifiant Number, newValue boat) return boolean,
+    static function remove(identifiant Number) return boolean,
+    map member function compare return varchar2
 );
 /
 create or replace type tabPrenoms as varray(4) of varchar2(10);
@@ -104,16 +109,28 @@ create table categories of category(
 /
 
 create table boats of boat(
-    constraint pk_boats_id primary key(id)
-);
+    constraint pk_boats_id primary key (id),
+    name constraint nnl_boats_name not null,
+    surface constraint nnl_boats_size not null,
+    city constraint nnl_boats_city not null,
+    number_of_cabins constraint nnl_boats_number_of_cabins not null,
+    floors constraint nnl_boats_floors not null,
+    max_seats constraint nnl_boats_max_seatsnot not null,
+    price constraint nnl_boats_price not null,
+    refCategory constraint nnl_boats_category not null,
+    constraint chk_boats_number_of_cabins check(number_of_cabins > 0),
+    constraint chk_boats_floors check(floors >= 0),
+    constraint chk_boats_max_seats check(max_seats > 0),
+    constraint chk_boats_price check(price > 0)
+) nested table bListRefReservations store as table_listRefReservations;
 
 -- Création des index
 create unique index idx_categories_name on categories(name);
 /
+create unique index idx_boats_name on boats(name);
+/
 
 -- Création des scope pour chaque clé étranger
-alter table categories add (scope for (cListRefBoats) is boats);
-/
 
 -- Contraintes supplémentaires
 
@@ -174,59 +191,57 @@ create or replace type body category as
 end;
 /
 
--- Tests --
--- Test crud catégorie
-delete from categories;
-declare
-    c CATEGORY := null;
-    c2 CATEGORY := null;
-    r boolean := null;
-begin
-    c:=Category(1, 'Navire', listRefBoats());
-    c2:=Category(2, 'Cat 2', listRefBoats());
-
-    r:=CATEGORY.persist(c);
-    r:=CATEGORY.persist(c2);
-
-    c2:=CATEGORY.findById(1);
-    c2.ID:=2;
-    c2.NAME:='update name';
-    r:=CATEGORY.change(c2.id, c2);
-    r:=Category.remove(c.id);
---     dbms_output.put_line('dname'||c.NAME);
+create or replace type body boat as
+    static function findById(identifiant Number) return boat is
+        b boat := null;
+    begin
+        SELECT value(bo) INTO b FROM boats bo WHERE bo.id = identifiant;
+        return b;
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            raise;
+        WHEN OTHERS THEN
+            raise;
+    end;
+    static function persist(b boat) return ref boat is
+        refBoat ref boat := null;
+    begin
+        insert into boats bo values b returning ref(bo) into refBoat;
+        return refBoat;
+    EXCEPTION
+        WHEN OTHERS THEN
+            raise;
+    end;
+    static function change(identifiant Number, newValue boat) return boolean is
+    begin
+        UPDATE boats bo
+        set bo.name = newValue.name,
+            bo.surface = newValue.surface,
+            bo.city = newValue.city,
+            bo.number_of_cabins = newValue.number_of_cabins,
+            bo.floors = newValue.floors,
+            bo.max_seats = newValue.max_seats,
+            bo.price = newValue.price,
+            bo.refCategory = newValue.refCategory,
+            bo.bListRefReservations = newValue.bListRefReservations
+        where bo.id = identifiant;
+        return true;
+    EXCEPTION
+        WHEN OTHERS THEN
+            raise;
+    end;
+    static function remove(identifiant Number) return boolean is
+    begin
+        DELETE FROM boats bo where bo.id = identifiant;
+        return true;
+    EXCEPTION
+        WHEN OTHERS THEN
+            raise;
+    end;
+    map member function compare return varchar2 is
+    begin
+        return self.NAME || self.ID;
+    end;
 end;
-select * from CATEGORIES;
-
-/* scope for
-
-2.	Implémentation des types et tables objets
-Le résultat de cette phase doit être mis dans un fichier appelé 
-3Script_Implementation_type_tables_objet_NomProjet_Nom1_Nom2_Nom3_Nom4.sql
-2.1	Création des types à partir du schéma de types
-Proposer la création des types (partie spécification) avec l’ensembles des champs et des méthodes y compris les champs pour gérer les liens d’association.
-2.2	Création des tables objets et des indexes à partir des types créés auparavant
-Définir le schéma physique consiste à produire les ordres SQL de création des tables objets, indexes etc.. 
-Si vous avez une base de données Oracle locale, il faut créer un utilisateur Oracle si ce n’est déjà fait ou utilser le compte Oracle qui vous a été fourni sur une base distante. Cet utilisateur sera le propriétaire de tous les objets de votre application (types, des tables objets, indexes, ...).
-
-Vous devez aussi poser les indexes sur vos colonnes REF y compris dans les listes.
-2.3	Insertion des lignes dans vos tables objets
-Il s’agit d’effectuer manuellement des insertions de lignes dans chacunes de vos tables. Insérer 10 à 20 lignes par tables. Bien gérer les contraintes d’intégrités (primary key, check, non nul).
-2.4	Mise à jour et consultation des données dans vos tables objets
-Les requêtes de mise à jour (modification, suppression) et de consulatation à écrire sont celles définies dans le chapitre 1.
-2.5	Implémentation des méthodes de vos types en PLSQL 
-Il s’agit définir les types Body et d’implémenter le code des méthodes des types définis dans la spécification des types. 
-
-Vous devez aussi proposer le code de test de chacune des méthodes.
-
-2.6	Travail à rendre (04/01/2022)
-Le travail à rendre doit être dans le fichier :
-Script_Implementation_type_tables_objet_NomProjet_Nom1_Nom2_Nom3_Nom4.sql
-Vous devez y mettre :
-•	Création des types à partir du schéma de types
-•	Création des tables objets et des indexes à partir des types créés auparavant
-•	Insertion des lignes dans vos tables objets
-•	Mise à jour et consultation des données dans vos tables objets
-•	Implémentation des méthodes de vos types en PLSQL
-
-
-*/
+/
+-- Tests --
