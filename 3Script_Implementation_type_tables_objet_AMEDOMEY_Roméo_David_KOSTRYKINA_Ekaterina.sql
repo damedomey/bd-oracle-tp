@@ -32,7 +32,7 @@ create or replace type category as object (
     name            varchar2(20),
     cListRefBoats   listRefBoats,
     static function findById(identifiant Number) return category,
-    static function persist(c category) return boolean, -- todo: return ref of the element
+    static function persist(c category) return ref category,
     static function change(identifiant Number, newValue category) return boolean,
     static function remove(identifiant Number) return boolean,
     member procedure addBoat(b REF boat),
@@ -148,10 +148,11 @@ create or replace type body category as
             WHEN OTHERS THEN
                 raise;
     end;
-    static function persist(c category) return boolean is
+    static function persist(c category) return ref category is
+        refCategory ref category := null;
     begin
-        insert into categories values c;
-        return true;
+        insert into categories ca values c returning ref(ca) into refCategory;
+        return refCategory;
         EXCEPTION
             WHEN OTHERS THEN
                 raise;

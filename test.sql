@@ -7,14 +7,15 @@ set serveroutput on
 declare
     c CATEGORY := null;
     c2 CATEGORY := null;
+    refCategory ref CATEGORY := null;
     r boolean := null;
 begin
     delete from categories;
     c:=Category(1, 'Navire', listRefBoats());
     c2:=Category(2, 'Cat 2', listRefBoats());
     -- insertion des deux objets
-    r:=CATEGORY.persist(c);
-    r:=CATEGORY.persist(c2);
+    refCategory:=CATEGORY.persist(c);
+    refCategory:=CATEGORY.persist(c2);
 
     c2:=CATEGORY.findById(1);
     c2.ID:=2;
