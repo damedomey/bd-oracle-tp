@@ -31,15 +31,19 @@ select * from categories;
 set serveroutput on
 declare
     b boat :=null;
+    b2 boat :=null;
     refBoat ref boat := null;
+    c category := null;
     refCategory ref CATEGORY := null;
     r boolean := null;
 begin
     delete from boats;
     SELECT ref(ca) into refCategory FROM categories ca; -- selection d'une catégorie au hasard
-    b := boat(1, 'hello', 2, 2, 2, 2, 2, 2, refCategory, listRefReservations());
-    refBoat := boat.persist(b);
-    -- todo: ajouter le bateau dans la catégorie
+    b:=boat(1, 'hello', 2, 2, 2, 2, 2, 2, refCategory, listRefReservations());
+    refBoat:=boat.persist(b);
+    UTL_REF.SELECT_OBJECT(refCategory, c);
+    c.ADDBOAT(refBoat); -- ajouter le bateau dans la catégorie
+    -- todo: fix null value of boat in category
     b.id := 2;
     b.name := 'hello 2';
     refBoat := boat.persist(b); -- création d'un doublons avec un id différent
@@ -49,5 +53,19 @@ begin
 end;
 /
 select * from boats;
+
+set serveroutput on
+declare
+    listBo LISTREFBOATS;
+    b boat;
+begin
+    SELECT ca.CLISTREFBOATS into listBo FROM CATEGORIES ca;
+    for i in listBo.first .. listBo.last
+        loop
+            UTL_REF.SELECT_OBJECT(listBo(i), b);
+            dbms_output.put_line('name '||b.name);
+        end loop;
+end;
+/
 -- INSERTION DE 20 OBJETS DE CHAQUE TYPE
 -- insertion de

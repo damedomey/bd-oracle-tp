@@ -175,15 +175,25 @@ create or replace type body category as
     end;
     member procedure addBoat(b REF boat) is
     begin
-        null;
+        insert into table ( select cListRefBoats from categories ca where ca.id = self.id )
+            values (b);
+        EXCEPTION
+            WHEN OTHERS THEN
+                raise;
     end;
     member function getBoats return listRefBoats is
+        refBoats listRefBoats := null;
     begin
-        null;
+        select ca.CLISTREFBOATS into refBoats from categories ca where ca.id = self.id;
+        return refBoats;
+        EXCEPTION
+            WHEN OTHERS THEN
+                raise;
     end;
     member procedure removeBoat(b REF boat) is
     begin
-        null;
+        delete from table ( select ca.cListRefBoats from categories ca where ca.id = self.id ) lbo
+        where lbo.COLUMN_VALUE = b;
     end;
     map member function compare return varchar2 is
     begin
@@ -205,9 +215,9 @@ create or replace type body boat as
             raise;
     end;
     static function persist(b boat) return ref boat is
-        refBoat ref boat := null;
+        refBoat ref boat;
     begin
-        insert into boats bo values b returning ref(bo) into refBoat;
+        insert into boats bo values (b) returning ref(bo) into refBoat;
         return refBoat;
     EXCEPTION
         WHEN OTHERS THEN
