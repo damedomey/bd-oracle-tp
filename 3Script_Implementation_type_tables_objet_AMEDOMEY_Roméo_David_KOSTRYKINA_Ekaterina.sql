@@ -149,7 +149,7 @@ create table customers of customer (
     telephone constraint nnl_customers_telephone not null,
     email constraint nnl_customers_email not null,
     constraint chk_cusomers_email check(REGEXP_LIKE(email, '^\w+(\.\w+)*+@\w+(\.\w+)+$'))
-) nested table cListRefReservation store as table_cListRefReservation;
+) nested table cListRefReservation store as table_cListRefReservations;
 /
 
 create table pilots of pilot (
@@ -184,6 +184,13 @@ create unique index idx_boats_name on boats(name);
 create unique index idx_reservations_request_datetime on reservations(request_datetime);
 /
 -- Création des scope pour chaque clé étranger
+alter table table_listRefBoats add (scope for (COLUMN_VALUE) is boats);
+alter table table_listRefReservations add (scope for (COLUMN_VALUE) is reservations);
+alter table table_cListRefReservations add (scope for (COLUMN_VALUE) is reservations);
+alter table table_pListRefReservation add (scope for (COLUMN_VALUE) is reservations);
+alter table table_rListRefBoats add (scope for (COLUMN_VALUE) is boats);
+alter table table_rListRefPilots add (scope for (COLUMN_VALUE) is pilots);
+alter table table_rListRefCustomers add (scope for (COLUMN_VALUE) is customers);
 
 -- Contraintes supplémentaires
 
