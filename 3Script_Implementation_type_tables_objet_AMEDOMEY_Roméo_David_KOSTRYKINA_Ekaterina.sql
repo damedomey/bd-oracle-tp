@@ -7,6 +7,7 @@ drop table categories cascade constraints;
 drop table boats cascade constraints;
 drop table pilots cascade constraints;
 drop table customers cascade constraints;
+drop table reservations cascade constraints;
 drop type category force;
 drop type listRefBoats force;
 drop type boat force;
@@ -107,7 +108,12 @@ create or replace type reservation as object (
     state_of_reservation varchar2(10),
     rListRefBoats       listRefBoats,
     rListRefPilots       listRefPilots,
-    rListRefCustomers   listRefCustomers
+    rListRefCustomers   listRefCustomers,
+    static function findById(identifiant Number) return reservation,
+    static function persist(r reservation) return ref reservation,
+    static function change(identifiant Number, newValue reservation) return boolean,
+    static function remove(identifiant Number) return boolean,
+    map member function compare return varchar2
 );
 /
 
@@ -134,6 +140,7 @@ create table boats of boat(
     constraint chk_boats_max_seats check(max_seats > 0),
     constraint chk_boats_price check(price > 0)
 ) nested table bListRefReservations store as table_listRefReservations;
+/
 
 create table customers of customer (
     constraint pk_customers_id primary key (id),
@@ -156,12 +163,26 @@ create table pilots of pilot (
     LOB (licence) store as storeLicence (PCTVERSION 30);
 /
 
+create table reservations of reservation (
+    constraint pk_reservations_id primary key (id),
+    request_datetime constraint nnl_reservations_request_datetime not null,
+    start_date constraint nnl_reservations_start_date not null,
+    end_date constraint nnl_reservations_end_date not null,
+    group_size constraint nnl_reservations_group_size not null,
+    state_of_reservation constraint nnl_reservations_state_of_reservation not null,
+    constraint chk_reservations_group_size check (group_size > 0),
+    constraint chk_reservations_state_of_reservations check (state_of_reservation in ('Paid', 'Not paid'))
+) nested table rListRefBoats store as table_rListRefBoats,
+    nested table rListRefPilots store as table_rListRefPilots,
+    nested table rListRefCustomers store as table_rListRefCustomers;
+/
 -- Création des index
 create unique index idx_categories_name on categories(name);
 /
 create unique index idx_boats_name on boats(name);
 /
-
+create unique index idx_reservations_request_datetime on reservations(request_datetime);
+/
 -- Création des scope pour chaque clé étranger
 
 -- Contraintes supplémentaires
@@ -388,4 +409,46 @@ create or replace type body pilot as
     end;
 end;
 /
+
+create or replace type body reservation as
+    static function findById(identifiant Number) return reservation is
+        r reservation := null;
+    begin
+        SELECT value(re) INTO r FROM reservations re WHERE re.id = identifiant;
+        return r;
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                raise;
+            WHEN OTHERS THEN
+                raise;
+    end;
+    static function persist(r reservation) return ref reservation is
+        refReservaton ref reservation := null;
+    begin
+        insert into reservations re values r returning ref(re) into refReservaton;
+        return refReservaton;
+        EXCEPTION
+            WHEN OTHERS THEN
+                raise;
+    end;
+    static function change(identifiant Number, newValue reservation) return boolean is
+    begin
+        null;
+    end;
+    static function remove(identifiant Number) return boolean is
+    begin
+        DELETE FROM reservations re where re.id = identifiant;
+        return true;
+        EXCEPTION
+            WHEN OTHERS THEN
+                raise;
+    end;
+    map member function compare return varchar2 is
+    begin
+        return self.id; -- todo: change this
+    end;
+end;
+/
+
+
 -- Tests --

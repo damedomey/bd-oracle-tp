@@ -88,6 +88,24 @@ end;
 select * from pilots;
 select * from customers;
 
+-- test crud reservation
+set serveroutput on
+declare
+    re reservation:=null;
+    refReservation ref reservation;
+    r boolean:=null;
+begin
+    delete from reservations;
+    -- création de deux reservation
+    re:=reservation(1, to_date(to_char(current_timestamp, 'DD-MM-YYYY HH24:MI:SS'), 'DD-MM-YYYY HH24:MI:SS'), to_date('12-11-2022', 'DD-MM-YYYY'), to_date('12-11-2023', 'DD-MM-YYYY'), 3, 'Paid', null, null, null);
+    refReservation := reservation.persist(re);
+    re:=reservation(2, to_date(to_char(current_timestamp+2, 'DD-MM-YYYY HH24:MI:SS'), 'DD-MM-YYYY HH24:MI:SS'), to_date('12-11-2022', 'DD-MM-YYYY'), to_date('12-11-2023', 'DD-MM-YYYY'), 3, 'Paid', null, null, null);
+    refReservation := reservation.persist(re);
+    -- suppression de la première reservation
+    r:=reservation.remove(1);
+end;
+select * from reservations;
+
 set serveroutput on
 declare
     listBo LISTREFBOATS;
