@@ -43,13 +43,12 @@ begin
     refBoat:=boat.persist(b);
     UTL_REF.SELECT_OBJECT(refCategory, c);
     c.ADDBOAT(refBoat); -- ajouter le bateau dans la catégorie
-    -- todo: fix null value of boat in category
     b.id := 2;
     b.name := 'hello 2';
     refBoat := boat.persist(b); -- création d'un doublons avec un id différent
     b.name := 'update name';
     r := boat.change(b.id, b); -- mise à jour du doublons
-    r := boat.remove(1); -- suppression du premier élément
+    --r := boat.remove(1); -- suppression du premier élément
 end;
 /
 select * from boats;

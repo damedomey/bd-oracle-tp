@@ -167,7 +167,7 @@ create unique index idx_boats_name on boats(name);
 -- Contraintes supplémentaires
 
 -- Implémentation des méthodes de chaque type
-
+-- todo: suppression des clé étranger is danglin lors de la suppression d'un objet
 create or replace type body category as
     static function findById(identifiant Number) return category is
         c category := null;
