@@ -137,14 +137,23 @@ create table boats of boat(
 
 create table customers of customer (
     constraint pk_customers_id primary key (id),
-    name constraint nnl_customers_name not null
+    name constraint nnl_customers_name not null,
+    surname constraint nnl_customers_surname not null,
+    telephone constraint nnl_customers_telephone not null,
+    email constraint nnl_customers_email not null,
+    constraint chk_cusomers_email check(REGEXP_LIKE(email, '^\w+(\.\w+)*+@\w+(\.\w+)+$'))
 ) nested table cListRefReservation store as table_cListRefReservation;
 /
 
 create table pilots of pilot (
     constraint pk_pilots_id primary key (id),
-    name constraint nnl_pilots_name not null
-) nested table pListRefReservation store as table_pListRefReservation;
+    name constraint nnl_pilots_name not null,
+    surname constraint nnl_pilots_surname not null,
+    telephone constraint nnl_pilots_telephone not null,
+    email constraint nnl_pilots_email not null,
+    constraint chk_pilots_email check(REGEXP_LIKE(email, '^\w+(\.\w+)*+@\w+(\.\w+)+$'))
+) nested table pListRefReservation store as table_pListRefReservation,
+    LOB (licence) store as storeLicence (PCTVERSION 30);
 /
 
 -- Création des index
