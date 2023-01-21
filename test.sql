@@ -54,6 +54,37 @@ end;
 /
 select * from boats;
 
+-- test du crud des pilotes et clients
+set serveroutput on
+declare
+    p pilot := null;
+    refPilot ref pilot;
+    c customer := null;
+    refCustomer ref customer;
+    r boolean;
+begin
+    delete from customers;
+    delete from pilots;
+    -- création d'un objet de chaque type
+    p := pilot(1, 'David pilot', tabPrenoms('AMEDOMEY'), 33649955555, 'email@email.com', null, null);
+    c := customer(1, 'David client', tabPrenoms('AMEDOMEY'), 33649955555, 'email@email.com', null);
+    -- insertion dans la base de données
+    refPilot:=pilot.persist(p);
+    refCustomer:=customer.persist(c);
+    -- insertion d'un doublons
+    p := pilot(2, 'David pilot 2', tabPrenoms('AMEDOMEY'), 336499555255, 'ema2il@email.com', null, null);
+    c := customer(2, 'David client2', tabPrenoms('A2MEDOMEY'), 336499555552, 'email@email.com', null);
+
+    refPilot:=pilot.persist(p);
+    refCustomer:=customer.persist(c);
+    -- suppression du premier element avec l'id 1
+    r:=pilot.remove(1);
+    r:=customer.remove(1);
+end;
+/
+select * from pilots;
+select * from customers;
+
 set serveroutput on
 declare
     listBo LISTREFBOATS;

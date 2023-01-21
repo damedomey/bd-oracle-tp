@@ -5,6 +5,8 @@
 -- Suppression des types et tables
 drop table categories cascade constraints;
 drop table boats cascade constraints;
+drop table pilots cascade constraints;
+drop table customers cascade constraints;
 drop type category force;
 drop type listRefBoats force;
 drop type boat force;
@@ -71,16 +73,25 @@ create or replace type person as object(
     name            varchar2(20),
     surname         tabPrenoms,
     telephone       int(15),
-    email           varchar2(150)
+    email           varchar2(150),
+    map member function compare return varchar2
 ) not instantiable not final;
 /
 create or replace type customer under person(
-    cListRefReservation listRefReservations
+    cListRefReservation listRefReservations,
+    static function findById(identifiant Number) return customer,
+    static function persist(c customer) return ref customer,
+    static function change(identifiant Number, newValue customer) return boolean,
+    static function remove(identifiant Number) return boolean
 );
 /
 create or replace type pilot under person(
     licence         blob,
-    pListRefReservation listRefReservations
+    pListRefReservation listRefReservations,
+    static function findById(identifiant Number) return pilot,
+    static function persist(p pilot) return ref pilot,
+    static function change(identifiant Number, newValue pilot) return boolean,
+    static function remove(identifiant Number) return boolean
 );
 /
 create or replace type listRefPilots as table of REF pilot;
@@ -123,6 +134,18 @@ create table boats of boat(
     constraint chk_boats_max_seats check(max_seats > 0),
     constraint chk_boats_price check(price > 0)
 ) nested table bListRefReservations store as table_listRefReservations;
+
+create table customers of customer (
+    constraint pk_customers_id primary key (id),
+    name constraint nnl_customers_name not null
+) nested table cListRefReservation store as table_cListRefReservation;
+/
+
+create table pilots of pilot (
+    constraint pk_pilots_id primary key (id),
+    name constraint nnl_pilots_name not null
+) nested table pListRefReservation store as table_pListRefReservation;
+/
 
 -- Création des index
 create unique index idx_categories_name on categories(name);
@@ -252,6 +275,94 @@ create or replace type body boat as
     map member function compare return varchar2 is
     begin
         return self.NAME || self.ID;
+    end;
+end;
+/
+
+create or replace type body person as
+    map member function compare return varchar2 is
+    begin
+        return self.NAME || self.ID;
+    end;
+end;
+/
+
+create or replace type body customer as
+    static function findById(identifiant Number) return customer is
+        c customer := null;
+    begin
+        SELECT value(cu) INTO c FROM customers cu WHERE cu.id = identifiant;
+        return c;
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            raise;
+        WHEN OTHERS THEN
+            raise;
+    end;
+    static function persist(c customer) return ref customer is
+        refCustomer ref customer := null;
+    begin
+        insert into customers cu values c returning ref(cu) into refCustomer;
+        return refCustomer;
+    EXCEPTION
+        WHEN OTHERS THEN
+            raise;
+    end;
+    static function change(identifiant Number, newValue customer) return boolean is
+    begin
+        -- todo: UPDATE customers set name = newValue.name, CLISTREFBOATS = newValue.CLISTREFBOATS where id = identifiant;
+        return true;
+    EXCEPTION
+        WHEN OTHERS THEN
+            raise;
+    end;
+    static function remove(identifiant Number) return boolean is
+    begin
+        DELETE FROM customers cu where cu.id = identifiant;
+        return true;
+    EXCEPTION
+        WHEN OTHERS THEN
+            raise;
+    end;
+end;
+/
+
+create or replace type body pilot as
+    static function findById(identifiant Number) return pilot is
+        p pilot := null;
+    begin
+        SELECT value(pi) INTO p FROM pilots pi WHERE pi.id = identifiant;
+        return p;
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            raise;
+        WHEN OTHERS THEN
+            raise;
+    end;
+    static function persist(p pilot) return ref pilot is
+        refPilot ref pilot := null;
+    begin
+        insert into pilots pi values p returning ref(pi) into refPilot;
+        return refPilot;
+    EXCEPTION
+        WHEN OTHERS THEN
+            raise;
+    end;
+    static function change(identifiant Number, newValue pilot) return boolean is
+    begin
+        -- todo: UPDATE customers set name = newValue.name, CLISTREFBOATS = newValue.CLISTREFBOATS where id = identifiant;
+        return true;
+    EXCEPTION
+        WHEN OTHERS THEN
+            raise;
+    end;
+    static function remove(identifiant Number) return boolean is
+    begin
+        DELETE FROM pilots pi where pi.id = identifiant;
+        return true;
+    EXCEPTION
+        WHEN OTHERS THEN
+            raise;
     end;
 end;
 /
