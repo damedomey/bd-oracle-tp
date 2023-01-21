@@ -74,9 +74,13 @@ begin
     -- insertion d'un doublons
     p := pilot(2, 'David pilot 2', tabPrenoms('AMEDOMEY'), 336499555255, 'ema2il@email.com', null, null);
     c := customer(2, 'David client2', tabPrenoms('A2MEDOMEY'), 336499555552, 'email@email.com', null);
-
     refPilot:=pilot.persist(p);
     refCustomer:=customer.persist(c);
+    -- mise à jour de la valeur de la dernière insertion
+    p.name := 'David pilot update';
+    c.name := 'David pilot update';
+    r:=pilot.change(p.id, p);
+    r:=customer.change(c.id, c);
     -- suppression du premier element avec l'id 1
     r:=pilot.remove(1);
     r:=customer.remove(1);

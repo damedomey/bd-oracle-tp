@@ -319,7 +319,13 @@ create or replace type body customer as
     end;
     static function change(identifiant Number, newValue customer) return boolean is
     begin
-        -- todo: UPDATE customers set name = newValue.name, CLISTREFBOATS = newValue.CLISTREFBOATS where id = identifiant;
+        UPDATE customers cu
+        set cu.name = newValue.name,
+            cu.surname = newValue.surname,
+            cu.telephone = newValue.telephone,
+            cu.email = newValue.email,
+            cu.cListRefReservation = newValue.cListRefReservation
+        where cu.id = identifiant;
         return true;
     EXCEPTION
         WHEN OTHERS THEN
@@ -359,7 +365,14 @@ create or replace type body pilot as
     end;
     static function change(identifiant Number, newValue pilot) return boolean is
     begin
-        -- todo: UPDATE customers set name = newValue.name, CLISTREFBOATS = newValue.CLISTREFBOATS where id = identifiant;
+        UPDATE pilots pi
+        set pi.name = newValue.name,
+            pi.surname = newValue.surname,
+            pi.telephone = newValue.telephone,
+            pi.email = newValue.email,
+            pi.licence = newValue.licence,
+            pi.pListRefReservation = newValue.pListRefReservation
+        where pi.id = identifiant;
         return true;
     EXCEPTION
         WHEN OTHERS THEN
