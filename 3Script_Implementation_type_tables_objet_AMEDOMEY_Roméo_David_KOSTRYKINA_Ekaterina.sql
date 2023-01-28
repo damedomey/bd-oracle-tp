@@ -64,6 +64,8 @@ create or replace type boat as object (
     static function persist(b boat) return ref boat,
     static function change(identifiant Number, newValue boat) return boolean,
     static function remove(identifiant Number) return boolean,
+    member procedure addLinkReservation(refReservation REF reservation),
+    member procedure deleteLinkReservation(refReservation REF reservation),
     map member function compare return varchar2
 );
 /
@@ -113,6 +115,8 @@ create or replace type reservation as object (
     static function persist(r reservation) return ref reservation,
     static function change(identifiant Number, newValue reservation) return boolean,
     static function remove(identifiant Number) return boolean,
+    member procedure addLinkBoat(refboat REF boat),
+    member procedure deleteLinkBoat(refBoat REF boat),
     map member function compare return varchar2
 );
 /
@@ -309,6 +313,22 @@ create or replace type body boat as
         WHEN OTHERS THEN
             raise;
     end;
+    member procedure addLinkReservation(refReservation REF reservation) is
+    begin
+        insert into table ( select bListRefReservations from boats bo where bo.id = self.id )
+            values (refReservation);
+        EXCEPTION
+            WHEN OTHERS THEN
+                raise;
+    end;
+    member procedure deleteLinkReservation(refReservation REF reservation) is
+    begin
+        delete from table ( select bListRefReservations from boats bo where bo.id = self.id ) lbo
+            where lbo.COLUMN_VALUE = refReservation;
+        EXCEPTION
+            WHEN OTHERS THEN
+                raise;
+    end;
     map member function compare return varchar2 is
     begin
         return self.NAME || self.ID;
@@ -449,6 +469,22 @@ create or replace type body reservation as
         EXCEPTION
             WHEN OTHERS THEN
                 raise;
+    end;
+    member procedure addLinkBoat(refboat REF boat) is
+    begin
+        insert into table ( select rListRefBoats from reservations re where re.id = self.id )
+            values (refboat);
+        EXCEPTION
+            WHEN OTHERS THEN
+                raise;
+    end;
+    member procedure deleteLinkBoat(refBoat REF boat) is
+    begin
+        delete from table ( select rListRefBoats from reservations re where re.id = self.id ) lbo
+            where lbo.COLUMN_VALUE = refboat;
+        EXCEPTION
+                WHEN OTHERS THEN
+                    raise;
     end;
     map member function compare return varchar2 is
     begin
