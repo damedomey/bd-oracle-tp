@@ -64,6 +64,7 @@ create or replace type boat as object (
     static function persist(b boat) return ref boat,
     static function change(identifiant Number, newValue boat) return boolean,
     static function remove(identifiant Number) return boolean,
+    member function getReservations return listRefReservations,
     member procedure addLinkReservation(refReservation REF reservation),
     member procedure deleteLinkReservation(refReservation REF reservation),
     map member function compare return varchar2
@@ -312,6 +313,15 @@ create or replace type body boat as
     EXCEPTION
         WHEN OTHERS THEN
             raise;
+    end;
+    member function getReservations return listRefReservations is
+        refReservations listRefReservations := null;
+    begin
+        select bListRefReservations into refReservations from boats bo where bo.id = self.id;
+        return refReservations;
+        EXCEPTION
+            WHEN OTHERS THEN
+                raise;
     end;
     member procedure addLinkReservation(refReservation REF reservation) is
     begin
