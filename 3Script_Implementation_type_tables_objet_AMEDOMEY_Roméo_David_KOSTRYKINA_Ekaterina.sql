@@ -245,6 +245,8 @@ create or replace type body category as
     static function remove(identifiant Number) return boolean is
     begin
         DELETE FROM categories ca where ca.id = identifiant;
+        -- Suppression de la reférence vers cette catégorie de ses bateaux
+        update boats bo set refCategory = null where refCategory is dangling;
         return true;
         EXCEPTION
             WHEN OTHERS THEN
