@@ -89,7 +89,8 @@ create or replace type customer under person(
     static function remove(identifiant Number) return boolean,
     member function getReservations return listRefReservations,
     member procedure addLinkReservation(refReservation REF reservation),
-    member procedure deleteLinkReservation(refReservation REF reservation)
+    member procedure deleteLinkReservation(refReservation REF reservation),
+    member function getUsedBoat return listRefBoats
 );
 /
 create or replace type pilot under person(
@@ -101,7 +102,8 @@ create or replace type pilot under person(
     static function remove(identifiant Number) return boolean,
     member function getReservations return listRefReservations,
     member procedure addLinkReservation(refReservation REF reservation),
-    member procedure deleteLinkReservation(refReservation REF reservation)
+    member procedure deleteLinkReservation(refReservation REF reservation),
+    member function getPilotedBoats return listRefBoats
 );
 /
 create or replace type listRefPilots as table of REF pilot;
@@ -432,6 +434,10 @@ create or replace type body customer as
             WHEN OTHERS THEN
                 raise;
     end;
+    member function getUsedBoat return listRefBoats is
+    begin
+        null; -- todo: getUsedBoat()
+    end;
 end;
 /
 
@@ -503,6 +509,10 @@ create or replace type body pilot as
         EXCEPTION
             WHEN OTHERS THEN
                 raise;
+    end;
+    member function getPilotedBoats return listRefBoats is
+    begin
+        null; -- todo: getPilotedBoats()
     end;
 end;
 /
