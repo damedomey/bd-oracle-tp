@@ -82,7 +82,7 @@ create or replace type person as object(
 ) not instantiable not final;
 /
 create or replace type customer under person(
-    cListRefReservation listRefReservations,
+    cListRefReservations listRefReservations,
     static function findById(identifiant Number) return customer,
     static function persist(c customer) return ref customer,
     static function change(identifiant Number, newValue customer) return boolean,
@@ -164,7 +164,7 @@ create table customers of customer (
     telephone constraint nnl_customers_telephone not null,
     email constraint nnl_customers_email not null,
     constraint chk_cusomers_email check(REGEXP_LIKE(email, '^\w+(\.\w+)*+@\w+(\.\w+)+$'))
-) nested table cListRefReservation store as table_cListRefReservations;
+) nested table cListRefReservations store as table_cListRefReservations;
 /
 
 create table pilots of pilot (
@@ -392,7 +392,7 @@ create or replace type body customer as
             cu.surname = newValue.surname,
             cu.telephone = newValue.telephone,
             cu.email = newValue.email,
-            cu.cListRefReservation = newValue.cListRefReservation
+            cu.cListRefReservations = newValue.cListRefReservations
         where cu.id = identifiant;
         return true;
     EXCEPTION
@@ -410,7 +410,7 @@ create or replace type body customer as
     member function getReservations return listRefReservations is
         refReservations listRefReservations := null;
     begin
-        select cListRefReservation into refReservations from customers cu where cu.id = self.id;
+        select cListRefReservations into refReservations from customers cu where cu.id = self.id;
         return refReservations;
         EXCEPTION
             WHEN OTHERS THEN
@@ -418,7 +418,7 @@ create or replace type body customer as
     end;
     member procedure addLinkReservation(refReservation REF reservation) is
     begin
-        insert into table ( select cListRefReservation from customers cu where cu.id = self.id )
+        insert into table ( select cListRefReservations from customers cu where cu.id = self.id )
             values (refReservation);
         EXCEPTION
             WHEN OTHERS THEN
@@ -426,7 +426,7 @@ create or replace type body customer as
     end;
     member procedure deleteLinkReservation(refReservation REF reservation) is
     begin
-        delete from table ( select cListRefReservation from customers cu where cu.id = self.id ) lbo
+        delete from table ( select cListRefReservations from customers cu where cu.id = self.id ) lbo
         where lbo.COLUMN_VALUE = refReservation;
         EXCEPTION
             WHEN OTHERS THEN
