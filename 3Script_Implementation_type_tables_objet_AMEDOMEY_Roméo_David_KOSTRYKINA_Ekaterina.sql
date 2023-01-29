@@ -210,9 +210,9 @@ alter table table_rListRefPilots add (scope for (COLUMN_VALUE) is pilots);
 alter table table_rListRefCustomers add (scope for (COLUMN_VALUE) is customers);
 
 -- Contraintes supplémentaires
-
+-- todo: contraintes sur les column_values (unique) et index
 -- Implémentation des méthodes de chaque type
--- todo: suppression des clé étranger is danglin lors de la suppression d'un objet
+
 create or replace type body category as
     static function findById(identifiant Number) return category is
         c category := null;
@@ -245,6 +245,8 @@ create or replace type body category as
     static function remove(identifiant Number) return boolean is
     begin
         DELETE FROM categories ca where ca.id = identifiant;
+        -- Suppression de la reférence vers cette catégorie de ses bateaux
+        update boats bo set refCategory = null where refCategory is dangling;
         return true;
         EXCEPTION
             WHEN OTHERS THEN
@@ -321,6 +323,7 @@ create or replace type body boat as
     static function remove(identifiant Number) return boolean is
     begin
         DELETE FROM boats bo where bo.id = identifiant;
+        -- todo : Suppression des objets avec une référence vers cet objet supprimer
         return true;
     EXCEPTION
         WHEN OTHERS THEN
@@ -404,6 +407,7 @@ create or replace type body customer as
     static function remove(identifiant Number) return boolean is
     begin
         DELETE FROM customers cu where cu.id = identifiant;
+        -- todo : Suppression des objets avec une référence vers cet objet supprimer
         return true;
     EXCEPTION
         WHEN OTHERS THEN
@@ -480,6 +484,7 @@ create or replace type body pilot as
     static function remove(identifiant Number) return boolean is
     begin
         DELETE FROM pilots pi where pi.id = identifiant;
+        -- todo : Suppression des objets avec une référence vers cet objet supprimer
         return true;
     EXCEPTION
         WHEN OTHERS THEN
@@ -545,6 +550,7 @@ create or replace type body reservation as
     static function remove(identifiant Number) return boolean is
     begin
         DELETE FROM reservations re where re.id = identifiant;
+        -- todo : Suppression des objets avec une référence vers cet objet supprimer
         return true;
         EXCEPTION
             WHEN OTHERS THEN
