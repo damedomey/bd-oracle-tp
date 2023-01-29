@@ -94,11 +94,14 @@ create or replace type customer under person(
 /
 create or replace type pilot under person(
     licence         blob,
-    pListRefReservation listRefReservations,
+    pListRefReservations listRefReservations,
     static function findById(identifiant Number) return pilot,
     static function persist(p pilot) return ref pilot,
     static function change(identifiant Number, newValue pilot) return boolean,
-    static function remove(identifiant Number) return boolean
+    static function remove(identifiant Number) return boolean,
+    member function getReservations return listRefReservations,
+    member procedure addLinkReservation(refReservation REF reservation),
+    member procedure deleteLinkReservation(refReservation REF reservation)
 );
 /
 create or replace type listRefPilots as table of REF pilot;
@@ -123,6 +126,8 @@ create or replace type reservation as object (
     member procedure deleteLinkBoat(refBoat REF boat),
     member procedure addLinkCustomer(refCustomer REF customer),
     member procedure deleteLinkCustomer(refCustomer REF customer),
+    member procedure addLinkPilot(refPilot REF pilot),
+    member procedure deleteLinkPilot(refPilot REF pilot),
     map member function compare return varchar2
 );
 /
@@ -169,7 +174,7 @@ create table pilots of pilot (
     telephone constraint nnl_pilots_telephone not null,
     email constraint nnl_pilots_email not null,
     constraint chk_pilots_email check(REGEXP_LIKE(email, '^\w+(\.\w+)*+@\w+(\.\w+)+$'))
-) nested table pListRefReservation store as table_pListRefReservation,
+) nested table pListRefReservations store as table_pListRefReservations,
     LOB (licence) store as storeLicence (PCTVERSION 30);
 /
 
@@ -197,7 +202,7 @@ create unique index idx_reservations_request_datetime on reservations(request_da
 alter table table_listRefBoats add (scope for (COLUMN_VALUE) is boats);
 alter table table_listRefReservations add (scope for (COLUMN_VALUE) is reservations);
 alter table table_cListRefReservations add (scope for (COLUMN_VALUE) is reservations);
-alter table table_pListRefReservation add (scope for (COLUMN_VALUE) is reservations);
+alter table table_pListRefReservations add (scope for (COLUMN_VALUE) is reservations);
 alter table table_rListRefBoats add (scope for (COLUMN_VALUE) is boats);
 alter table table_rListRefPilots add (scope for (COLUMN_VALUE) is pilots);
 alter table table_rListRefCustomers add (scope for (COLUMN_VALUE) is customers);
@@ -459,7 +464,7 @@ create or replace type body pilot as
             pi.telephone = newValue.telephone,
             pi.email = newValue.email,
             pi.licence = newValue.licence,
-            pi.pListRefReservation = newValue.pListRefReservation
+            pi.pListRefReservations = newValue.pListRefReservations
         where pi.id = identifiant;
         return true;
     EXCEPTION
@@ -473,6 +478,31 @@ create or replace type body pilot as
     EXCEPTION
         WHEN OTHERS THEN
             raise;
+    end;
+    member function getReservations return listRefReservations is
+            refReservations listRefReservations := null;
+    begin
+        select pListRefReservations into refReservations from pilots po where po.id = self.id;
+        return refReservations;
+        EXCEPTION
+            WHEN OTHERS THEN
+                raise;
+    end;
+        member procedure addLinkReservation(refReservation REF reservation) is
+    begin
+        insert into table ( select pListRefReservations from pilots po where po.id = self.id )
+            values (refReservation);
+        EXCEPTION
+            WHEN OTHERS THEN
+                raise;
+    end;
+        member procedure deleteLinkReservation(refReservation REF reservation) is
+    begin
+        delete from table ( select pListRefReservations from pilots po where po.id = self.id ) lbo
+            where lbo.COLUMN_VALUE = refReservation;
+        EXCEPTION
+            WHEN OTHERS THEN
+                raise;
     end;
 end;
 /
@@ -538,6 +568,22 @@ create or replace type body reservation as
     begin
         delete from table ( select rListRefCustomers from reservations re where re.id = self.id ) lbo
         where lbo.COLUMN_VALUE = refCustomer;
+        EXCEPTION
+            WHEN OTHERS THEN
+                raise;
+    end;
+    member procedure addLinkPilot(refPilot REF pilot) is
+    begin
+        insert into table ( select rListRefPilots from reservations re where re.id = self.id )
+            values (refPilot);
+        EXCEPTION
+            WHEN OTHERS THEN
+                raise;
+    end;
+    member procedure deleteLinkPilot(refPilot REF pilot) is
+    begin
+        delete from table ( select rListRefPilots from reservations re where re.id = self.id ) lbo
+            where lbo.COLUMN_VALUE = refPilot;
         EXCEPTION
             WHEN OTHERS THEN
                 raise;
