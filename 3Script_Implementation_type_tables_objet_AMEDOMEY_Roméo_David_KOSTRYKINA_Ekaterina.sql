@@ -86,7 +86,10 @@ create or replace type customer under person(
     static function findById(identifiant Number) return customer,
     static function persist(c customer) return ref customer,
     static function change(identifiant Number, newValue customer) return boolean,
-    static function remove(identifiant Number) return boolean
+    static function remove(identifiant Number) return boolean,
+    member function getReservations return listRefReservations,
+    member procedure addLinkReservation(refReservation REF reservation),
+    member procedure deleteLinkReservation(refReservation REF reservation)
 );
 /
 create or replace type pilot under person(
@@ -118,6 +121,8 @@ create or replace type reservation as object (
     static function remove(identifiant Number) return boolean,
     member procedure addLinkBoat(refboat REF boat),
     member procedure deleteLinkBoat(refBoat REF boat),
+    member procedure addLinkCustomer(refCustomer REF customer),
+    member procedure deleteLinkCustomer(refCustomer REF customer),
     map member function compare return varchar2
 );
 /
@@ -397,6 +402,31 @@ create or replace type body customer as
         WHEN OTHERS THEN
             raise;
     end;
+    member function getReservations return listRefReservations is
+        refReservations listRefReservations := null;
+    begin
+        select cListRefReservation into refReservations from customers cu where cu.id = self.id;
+        return refReservations;
+        EXCEPTION
+            WHEN OTHERS THEN
+                raise;
+    end;
+    member procedure addLinkReservation(refReservation REF reservation) is
+    begin
+        insert into table ( select cListRefReservation from customers cu where cu.id = self.id )
+            values (refReservation);
+        EXCEPTION
+            WHEN OTHERS THEN
+                raise;
+    end;
+    member procedure deleteLinkReservation(refReservation REF reservation) is
+    begin
+        delete from table ( select cListRefReservation from customers cu where cu.id = self.id ) lbo
+        where lbo.COLUMN_VALUE = refReservation;
+        EXCEPTION
+            WHEN OTHERS THEN
+                raise;
+    end;
 end;
 /
 
@@ -495,6 +525,22 @@ create or replace type body reservation as
         EXCEPTION
                 WHEN OTHERS THEN
                     raise;
+    end;
+    member procedure addLinkCustomer(refCustomer REF customer) is
+    begin
+        insert into table ( select rListRefCustomers from reservations re where re.id = self.id )
+            values (refCustomer);
+        EXCEPTION
+            WHEN OTHERS THEN
+                raise;
+    end;
+    member procedure deleteLinkCustomer(refCustomer REF customer) is
+    begin
+        delete from table ( select rListRefCustomers from reservations re where re.id = self.id ) lbo
+        where lbo.COLUMN_VALUE = refCustomer;
+        EXCEPTION
+            WHEN OTHERS THEN
+                raise;
     end;
     map member function compare return varchar2 is
     begin
