@@ -1,0 +1,8 @@
+- La structure du package java:
+La structure des classe dans ce fichier est le même que les types. La classe correspondant à un type porte le même nom 
+que le type. Dans le dossier repository sous src se trouve les classes. 
+- Les différentes classes: Nous avons 5 classes finales (category, boat, reservation, customer, pilot) et 1 classe abstraite (person).
+- Le résultat des tests des différentes fonctions : 
+	* Déjà un premier test consite juste à afficher la liste des objets dans chaque type (sans suivre les liens de références et autres)
+	*
+- Invocation de méthode de type sql3 depuis java.
