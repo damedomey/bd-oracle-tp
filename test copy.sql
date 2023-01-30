@@ -18,7 +18,7 @@ begin
     c2:=Category(2, 'Cat 2', listRefBoats());
 
     -- addBoat
-    b := BOAT(1, 'Serendipity', 30.5, 'Nice', 3, 1, 5, 3000, refCategory, listRefReservations()));
+    b := BOAT(1, 'Serendipity', 30.5, 'Nice', 3, 1, 5, 3000, refCategory, listRefReservations());
     refBoat := BOAT.persist(b);
     c.addBoat(refBoat);
     -- getBoats
@@ -45,18 +45,22 @@ end;
 select * from categories;
 
 -- test du crud et methodes de bateau
+
+
 set serveroutput on
 declare
-    b boat :=null;
-    b2 boat :=null;
+b boat := null;
+    b2 boat := null;
     refBoat ref boat := null;
     c category := null;
-    refCategory ref CATEGORY := null;
+    refCategory ref category := null;
     r boolean := null;
+    refReservation ref reservation := null;
+    refReservations listRefReservations := listRefReservations();
 begin
     delete from boats;
     SELECT ref(ca) into refCategory FROM categories ca; -- selection d'une catégorie au hasard
-    b:=boat(1, 'Serendipity', 30.5, 'Nice', 3, 1, 5, 3000, refCategory, listRefReservations());
+    b:=boat(1, '1Serendipity', 30.5, 'Nice', 3, 1, 5, 3000, refCategory, listRefReservations());
     b2:=boat(2, 'Imagination', 60, 'Nice', 4, 2, 8, 4200, refCategory, listRefReservations());
 
     refBoat:=boat.persist(b);
