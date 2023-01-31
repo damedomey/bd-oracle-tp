@@ -1,6 +1,6 @@
 /*
-    AMEDOMEY Roméo David :			, Activités paricipant1
-    KOSTRYKINA Ekaterina :			, Activités paricipant2
+    AMEDOMEY Roméo David : Création des types et tables objets
+    KOSTRYKINA Ekaterina : Écriture des scripts de test des methodes et de création d'un ensemble de donnée
 */
 -- Suppression des types et tables
 drop table categories cascade constraints;
