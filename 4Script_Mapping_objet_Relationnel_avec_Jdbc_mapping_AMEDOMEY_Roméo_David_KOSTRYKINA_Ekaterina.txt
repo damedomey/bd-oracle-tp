@@ -6,3 +6,5 @@ que le type. Dans le dossier repository sous src se trouve les classes.
 	* Déjà un premier test consite juste à afficher la liste des objets dans chaque type (sans suivre les liens de références et autres)
 	*
 - Invocation de méthode de type sql3 depuis java.
+	* Nous avons juste fait l'invocation de la méthode findById de chaque type depuis java.
+	* Aussi, nous avons fait l'invation de la méthode getUsedBoat de client et getPilotedBoat du pilote

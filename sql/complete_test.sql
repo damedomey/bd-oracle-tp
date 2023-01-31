@@ -194,6 +194,7 @@ begin
     end loop;
 end;
 /
+commit;
 select * from categories;
 select * from boats;
 select * from customers;
