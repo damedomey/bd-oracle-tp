@@ -1,4 +1,95 @@
 /*
+    Update
+
+    1 table
+*/
+-- cette requête remplace le nom de la ville du bateau par id=3
+UPDATE boats
+SET city = 'Cagnes-sur-mer'
+WHERE id=3
+
+-- cette requête remplace le statut de réservation par id=7
+UPDATE reservations
+SET state_of_reservation='Paid'
+WHERE id=7
+
+
+/*
+    2 tables
+*/
+   
+-- cette requête remplace la ville pour les bateaux de la catégorie ‘Yacht’
+UPDATE boats b
+SET b.city='Monaco'
+WHERE EXISTS (
+    SELECT 1
+    FROM categories c
+    WHERE b.refCategory.name = c.name AND c.name='Yacht'
+);
+
+-- cette requête remplace le coût par 10000 pour les bateaux de la catégorie Barge dont le coût est inférieur à 8000
+UPDATE boats b
+SET b.price=10000
+WHERE EXISTS (
+    SELECT 1
+    FROM categories c
+    WHERE b.refCategory.name = c.name AND c.name='Barge' AND b.price<8000
+);
+
+/*
+    2+ tables
+*/
+--
+
+
+/*
+
+Suppression
+
+    1 table
+*/
+-- cette requête supprime la ligne où id=1
+DELETE 
+FROM boats
+WHERE id=1
+
+-- cette requête supprime la ligne où la personne a un nom=THOMLER
+DELETE 
+FROM customers
+WHERE name='THOMLER'
+
+
+/* 
+    2 tables
+*/
+-- cette requête supprime les lignes avec les bateaux de la catégorie Yacht
+DELETE
+FROM boats b
+WHERE EXISTS (
+    SELECT 1
+    FROM categories c
+    WHERE b.refCategory.name = c.name AND c.name='Yacht'
+);
+
+-- cette requête supprime les lignes avec les bateaux de la catégorie Canoe dont le prix est supérieur à 100
+DELETE
+FROM boats b
+WHERE EXISTS (
+    SELECT 1
+    FROM categories c
+    WHERE b.refCategory.name = c.name AND c.name='Canoe' AND b.price>100
+);
+
+/*
+    2+ tables
+*/
+--
+
+
+/*
+
+Consultation
+
     1 table
 */
 -- cette requête affiche tous les noms de catégories
@@ -57,3 +148,6 @@ ORDER BY b.price DESC;
 */
 
 -- 
+
+
+
