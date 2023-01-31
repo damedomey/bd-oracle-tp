@@ -27,36 +27,37 @@ public class main {
             ResultSet resultsetTableau = stmt.executeQuery(Boat.findAll());
             System.out.println("***************************INFOS Bateaux***************************************");
             while (resultsetTableau.next()) {
-                Boat dept = (Boat) resultsetTableau.getObject(1, mapOraObjType);
-                dept.display();
+                Boat boat = (Boat) resultsetTableau.getObject(1, mapOraObjType);
+                boat.display();
             }
 
             resultsetTableau = stmt.executeQuery(Category.findAll());
             System.out.println("***************************INFOS Categories***************************************");
             while (resultsetTableau.next()) {
-                Category employe = (Category) resultsetTableau.getObject(1, mapOraObjType);
-                employe.display();
+                Category category = (Category) resultsetTableau.getObject(1, mapOraObjType);
+                category.display();
+                category.displayBoatsInCategory();
             }
 
             resultsetTableau = stmt.executeQuery(Customer.findAll());
-            System.out.println("***************************INFOS Categories***************************************");
+            System.out.println("***************************INFOS Customers***************************************");
             while (resultsetTableau.next()) {
-                Customer employe = (Customer) resultsetTableau.getObject(1, mapOraObjType);
-                employe.display();
+                Customer customer = (Customer) resultsetTableau.getObject(1, mapOraObjType);
+                customer.display();
             }
 
             resultsetTableau = stmt.executeQuery(Pilot.findAll());
-            System.out.println("***************************INFOS Categories***************************************");
+            System.out.println("***************************INFOS Pilotes***************************************");
             while (resultsetTableau.next()) {
-                Pilot employe = (Pilot) resultsetTableau.getObject(1, mapOraObjType);
-                employe.display();
+                Pilot pilot = (Pilot) resultsetTableau.getObject(1, mapOraObjType);
+                pilot.display();
             }
 
             resultsetTableau = stmt.executeQuery(Reservation.findAll());
-            System.out.println("***************************INFOS Categories***************************************");
+            System.out.println("***************************INFOS Reservations***************************************");
             while (resultsetTableau.next()) {
-                Reservation employe = (Reservation) resultsetTableau.getObject(1, mapOraObjType);
-                employe.display();
+                Reservation reservation = (Reservation) resultsetTableau.getObject(1, mapOraObjType);
+                reservation.display();
             }
         } catch (Exception e){
             System.out.println("Echec du mapping");

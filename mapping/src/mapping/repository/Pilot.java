@@ -43,4 +43,12 @@ public class Pilot extends Person implements SQLData {
     public void display(){
         System.out.println("Id : " + id + " Name : " + name);
     }
+
+    public Blob getLicence() {
+        return licence;
+    }
+
+    public void setLicence(Blob licence) {
+        this.licence = licence;
+    }
 }

@@ -56,7 +56,88 @@ public class Boat implements SQLData {
         return "SELECT VALUE(bo) FROM boats bo";
     }
 
-    public void display(){
-        System.out.println("Id : " + id + " Name : " + name);
+    public void display() throws SQLException {
+        Category category = (Category) refCategory.getObject();
+        System.out.println("Id : " + id + " Name : " + name + " City : " + city + " Under category " + category.getName());
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public float getSurface() {
+        return surface;
+    }
+
+    public void setSurface(float surface) {
+        this.surface = surface;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public int getNumberOfCabins() {
+        return numberOfCabins;
+    }
+
+    public void setNumberOfCabins(int numberOfCabins) {
+        this.numberOfCabins = numberOfCabins;
+    }
+
+    public int getFloors() {
+        return floors;
+    }
+
+    public void setFloors(int floors) {
+        this.floors = floors;
+    }
+
+    public int getMaxSeats() {
+        return maxSeats;
+    }
+
+    public void setMaxSeats(int maxSeats) {
+        this.maxSeats = maxSeats;
+    }
+
+    public float getPrice() {
+        return price;
+    }
+
+    public void setPrice(float price) {
+        this.price = price;
+    }
+
+    public Ref getRefCategory() {
+        return refCategory;
+    }
+
+    public void setRefCategory(Ref refCategory) {
+        this.refCategory = refCategory;
+    }
+
+    public ARRAY getListRefReservations() {
+        return listRefReservations;
+    }
+
+    public void setListRefReservations(ARRAY listRefReservations) {
+        this.listRefReservations = listRefReservations;
     }
 }

@@ -56,4 +56,76 @@ public class Reservation implements SQLData  {
     public void display(){
         System.out.println("Id : " + id + " group size : " + groupSize);
     }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Date getRequestDatetime() {
+        return requestDatetime;
+    }
+
+    public void setRequestDatetime(Date requestDatetime) {
+        this.requestDatetime = requestDatetime;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    public int getGroupSize() {
+        return groupSize;
+    }
+
+    public void setGroupSize(int groupSize) {
+        this.groupSize = groupSize;
+    }
+
+    public String getStateOfReservation() {
+        return stateOfReservation;
+    }
+
+    public void setStateOfReservation(String stateOfReservation) {
+        this.stateOfReservation = stateOfReservation;
+    }
+
+    public ARRAY getListRefBoats() {
+        return listRefBoats;
+    }
+
+    public void setListRefBoats(ARRAY listRefBoats) {
+        this.listRefBoats = listRefBoats;
+    }
+
+    public ARRAY getListRefPilots() {
+        return listRefPilots;
+    }
+
+    public void setListRefPilots(ARRAY listRefPilots) {
+        this.listRefPilots = listRefPilots;
+    }
+
+    public ARRAY getListRefCustomers() {
+        return listRefCustomers;
+    }
+
+    public void setListRefCustomers(ARRAY listRefCustomers) {
+        this.listRefCustomers = listRefCustomers;
+    }
 }

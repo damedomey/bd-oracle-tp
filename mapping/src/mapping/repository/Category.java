@@ -2,6 +2,8 @@ package mapping.repository;
 
 import oracle.sql.ARRAY;
 
+import java.io.IOError;
+import java.io.IOException;
 import java.sql.*;
 
 public class Category implements SQLData {
@@ -36,5 +38,41 @@ public class Category implements SQLData {
 
     public void display(){
         System.out.println("Id : " + id + " Name : " + name);
+    }
+
+    public void displayBoatsInCategory() throws SQLException, IOException {
+        Ref [] refs = (Ref[]) this.getListRefBoats().getArray();
+        System.out.println("Liste des bateaux dans la catégorie " + name);
+
+        for (Ref refBoat: refs) {
+            Boat boat = (Boat) refBoat.getObject();
+            boat.display();
+        }
+
+        System.out.println("-------------");
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public ARRAY getListRefBoats() {
+        return listRefBoats;
+    }
+
+    public void setListRefBoats(ARRAY listRefBoats) {
+        this.listRefBoats = listRefBoats;
     }
 }
