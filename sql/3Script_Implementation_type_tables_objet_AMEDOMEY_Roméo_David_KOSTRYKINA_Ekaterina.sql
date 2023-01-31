@@ -225,7 +225,29 @@ begin
             end loop;
     end if;
 end;
+/
 
+-- Test de la méthode pour récupérer tous les bateaux conduit par un pilote
+-- Précondition : exécuter le script de création de l'ensemble de données
+set serverout on;
+declare
+    p pilot:=null;
+    refPilot ref pilot;
+    refBoats listRefBoats;
+    b boat;
+begin
+    p := pilot.findById(1);
+    refBoats := p.getPilotedBoats();
+    dbms_output.put_line('Liste des bateaux conduit par le pilote 1');
+    if refBoats.count > 0 then
+        for i in refBoats.first..refBoats.last
+            loop
+                UTL_REF.SELECT_OBJECT(refBoats(i), b);
+                dbms_output.put_line('name '||b.name);
+            end loop;
+    end if;
+end;
+/
 -----------------------------------------------------------------
 -- Script de consultation impliquants 1, 2 ou plusieurs tables --
 -----------------------------------------------------------------

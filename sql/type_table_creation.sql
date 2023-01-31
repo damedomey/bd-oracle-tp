@@ -534,8 +534,28 @@ create or replace type body pilot as
                 raise;
     end;
     member function getPilotedBoats return listRefBoats is
+        refBoats listRefBoats := listRefBoats();
+        lrf listRefBoats;
+        refReservations listRefReservations;
+        indice number(8) := 0;
     begin
-        null; -- todo: getPilotedBoats()
+        select po.pListRefReservations into refReservations from pilots po where po.id = self.id;
+        if refReservations.count > 0 then
+            for i in refReservations.first..refReservations.last
+                loop
+                    select rListRefBoats into lrf from reservations re where ref(re) = refReservations(i);
+                    if lrf.count > 0 then
+                        for j in lrf.first..lrf.last
+                            loop
+                                refBoats.extend(1);
+                                indice := indice + 1;
+                                refBoats(indice) := lrf(j);
+                            end loop;
+                    end if;
+
+                end loop;
+        end if;
+        return refBoats;  -- todo: get distinct
     end;
 end;
 /
