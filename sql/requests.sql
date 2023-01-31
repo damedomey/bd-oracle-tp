@@ -27,7 +27,8 @@ select bo.refCategory.name from boats bo where bo.id=1;
 -- cette requête affiche les noms des bateaux et les noms de leurs catégories respectives
 SELECT b.name, c.name as category_name
 FROM boats b
-LEFT OUTER JOIN categories c ON b.refCategory.name = c.name
+LEFT OUTER JOIN categories c 
+ON b.refCategory.name = c.name;
 
 -- cette requête affiche les noms des bateaux de la catégorie Yacht
 SELECT b.name
